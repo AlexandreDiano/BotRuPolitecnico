@@ -1,86 +1,78 @@
 let Twit = require("twit");
-let request = require('request')
-let cheerio = require('cheerio')
+const puppeteer = require("puppeteer");
+const cron = require('node-cron');
+const express = require('express');
+const cors = require('cors')
 
 require("dotenv").config();
 
-let food
-
-request('https://pra.ufpr.br/ru/ru-centro-politecnico/', function (err, res, body) {
-  if (err) console.log(`Erro: ${err}`)
-  let $ = cheerio.load(body)
-
-  $('.wp-block-table table tbody').each(function () {
-    food = $(this).find('tr td').text().trim()
-  })
-
-  food = food.replace('CAFÉ DA MANHÃ', '|').trim()
-  food = food.replace('ALMOÇO', '|').trim()
-  food = food.replace('JANTAR', '|').trim()
-  food = food.replace('                        ', '\n').trim()
-  food = food.replace('                          ', '\n').trim()
-  food = food.replace('            ', '\n').trim()
-  food = food.replace('                              ', '\n').trim()
-  food = food.replace('                                        ', '\n').trim()
-  food = food.replace('         ', '\n').trim()
-  food = food.replace('                                                ', '\n').trim()
-  food = food.split('|')
-  currentTime(food);
-})
-
-function currentTime(tweet) {
-  let date = new Date();
-  let hh = date.getHours();
-  let mm = date.getMinutes();
-  let ss = date.getSeconds();
-
-  const cafe = tweet => {
-    runTweet(`---------- ${currentDate} ----------\n------- CAFÉ DA MANHÃ -------\n${tweet[1]}`)
-  }
-
-  const almoço = tweet => {
-    runTweet(`------- ${currentDate} -------\n--------- ALMOÇO ---------\n${tweet[2]}`)
-  }
-
-  const jantar = tweet => {
-    runTweet(`------- ${currentDate} -------\n---------- JANTAR ----------\n${tweet[3]}`)
-  }
-
-  let currentDate = ('0' + date.getDate()).slice(-2) + '/'
-    + ('0' + (date.getMonth()+1)).slice(-2) + '/'
-    + date.getFullYear()
-
-  hh = (hh < 10) ? "0" + hh : hh;
-  mm = (mm < 10) ? "0" + mm : mm;
-  ss = (ss < 10) ? "0" + ss : ss;
-
-  let time = hh + ":" + mm + ":" + ss;
-  time.toString()
-  if(time === '22:13:30'){
-    cafe(tweet)
-  }else if(time === '22:13:40'){
-    almoço(tweet)
-  }else if(time === '22:13:50'){
-    jantar(tweet)
-  }
-  let t = setTimeout(function(){ currentTime(tweet) }, 1000);
+const currentDate = () => {
+  const date = new Date();
+  const day = date.getDate();
+  const month = String(date.getMonth() + 1);
+  const year = date.getFullYear();
+  return `${day}/${month.padStart(2, '0')}/${year}`;
 }
 
-function runTweet(tweetContent) {
+class Scrapper{
+  static results = {cafe: '', almoco: '', janta: '', data: '', vezes: 0};
 
-  const poliBot = new Twit({
-    consumer_key: process.env.CONSUMER_KEY,
+  static async init() {
+    await Scrapper.getResults();
+  }
 
-    consumer_secret: process.env.CONSUMER_SECRET,
-    access_token: process.env.ACCESS_TOKEN,
+  static async getResults(){
+    try{
+      const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
+      console.log('getData')
+      const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+        const page = await browser.newPage();
+        await page.goto(url,
+          {waitUntil: 'domcontentloaded', timeout: 0});
 
-    access_token_secret: process.env.ACCESS_TOKEN_SECRET,
-    timeout_ms: 60 * 1000
-  });
+        await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
+        const pageContent = await page.evaluate(() => {
+          return {
+            cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
+            almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
+            janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
+            data: document.querySelector('#post div:nth-child(3) p strong strong').innerHTML
+          }
+        })
 
-  function botPost() {
+        Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
+        Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
+        Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
+        Scrapper.results.data = pageContent.data;
+
+      await browser.close();
+      }catch(err){
+      console.log(err)
+      await Scrapper.init();
+    }
+
+  }
+}
+
+let poliBot = '';
+
+class Twitter{
+  static async init(){
+    poliBot = new Twit({
+      consumer_key: process.env.CONSUMER_KEY,
+
+      consumer_secret: process.env.CONSUMER_SECRET,
+      access_token: process.env.ACCESS_TOKEN,
+
+      access_token_secret: process.env.ACCESS_TOKEN_SECRET,
+      timeout_ms: 60 * 1000
+    });
+  }
+
+  static runTwitter(tweetContent){
     let postTweet = `${tweetContent}`;
+    Twitter.init();
     poliBot.post(
       'statuses/update',
       {status: postTweet},
@@ -93,6 +85,78 @@ function runTweet(tweetContent) {
       }
     )
   }
-
-  botPost();
 }
+
+async function init(){
+  try{
+    await Scrapper.init();
+    await Twitter.init();
+
+    // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
+
+    if(Scrapper.results.data === currentDate()){
+      cron.schedule('0 15 5 * * MON-FRI', () => {
+        try{
+          Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
+        }catch(err){
+          console.log('é foda ' + err)
+        }
+      }, {
+        timezone: 'America/Sao_Paulo'
+      });
+
+      cron.schedule('0 30 9 * * MON-FRI', () => {
+        try{
+          Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
+        }catch(err){
+          console.log('é foda ' + err)
+        }
+      }, {
+        timezone: 'America/Sao_Paulo'
+      });
+
+      cron.schedule('0 30 16 * * MON-FRI', () => {
+        try{
+          Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
+        }catch(err){
+          console.log('é foda ' + err)
+        }
+      }, {
+        timezone: 'America/Sao_Paulo'
+      });
+    }
+
+      cron.schedule('0 30 17 * * MON-FRI', () => {
+        try{
+          Scrapper.getResults()
+        }catch(err){
+          console.log('é foda ' + err)
+        }
+      }, {
+        timezone: 'America/Sao_Paulo'
+      });
+      cron.schedule('* * * * * *', () => {
+        try{
+          console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}`);
+        }catch(err){
+          console.log('é foda ' + err)
+        }
+      }, {
+        timezone: 'America/Sao_Paulo'
+      });
+
+  }catch(err){
+    console.log(err);
+  }
+}
+
+const app = express();
+
+app.use(cors())
+
+app.use((req, res) => res.json(Scrapper.results));
+
+app.listen(process.env.PORT || 6000,() => {
+  init();
+  console.log('App started at PORT ' + process.env.PORT || 6000)
+})
