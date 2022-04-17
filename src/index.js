@@ -53,6 +53,20 @@ class Scrapper{
     }
 
   }
+
+  static async herokuApp(){
+    try{
+      const heroku = 'https://bot-ru-poli.herokuapp.com'
+      console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}`);
+      const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+      const page = await browser.newPage();
+      await page.goto(heroku, {waitUntil: 'load', timeout: 0});
+
+      await browser.close();
+    }catch(err){
+      console.log(err)
+    }
+  }
 }
 
 let poliBot = '';
@@ -135,9 +149,10 @@ async function init(){
       }, {
         timezone: 'America/Sao_Paulo'
       });
+
       cron.schedule('* * * * * *', () => {
         try{
-          console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}`);
+          Scrapper.herokuApp();
         }catch(err){
           console.log('é foda ' + err)
         }
