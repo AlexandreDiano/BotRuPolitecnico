@@ -14,48 +14,48 @@ const currentDate = () => {
   return `${day}/${month.padStart(2, '0')}/${year}`;
 }
 
-class Scrapper{
+class Scrapper {
   static results = {cafe: '', almoco: '', janta: '', data: '', vezes: 0};
 
   static async init() {
     await Scrapper.getResults();
   }
 
-  static async getResults(){
-    try{
+  static async getResults() {
+    try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-        const page = await browser.newPage();
-        await page.goto(url,
-          {waitUntil: 'domcontentloaded', timeout: 0});
+      const page = await browser.newPage();
+      await page.goto(url,
+        {waitUntil: 'domcontentloaded', timeout: 0});
 
-        await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
+      await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
-        const pageContent = await page.evaluate(() => {
-          return {
-            cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
-            almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
-            janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
-            data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '')
-          }
-        })
+      const pageContent = await page.evaluate(() => {
+        return {
+          cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
+          almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
+          janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
+          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '')
+        }
+      })
 
-        Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
-        Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
-        Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
-        Scrapper.results.data = pageContent.data;
+      Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
+      Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
+      Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
+      Scrapper.results.data = pageContent.data;
 
       await browser.close();
-      }catch(err){
+    } catch (err) {
       console.log(err)
       await Scrapper.init();
     }
 
   }
 
-  static async herokuApp(){
-    try{
+  static async herokuApp() {
+    try {
       const heroku = 'https://bot-ru-poli.herokuapp.com'
       console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}`);
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
@@ -63,7 +63,7 @@ class Scrapper{
       await page.goto(heroku, {waitUntil: 'load', timeout: 0});
 
       await browser.close();
-    }catch(err){
+    } catch (err) {
       console.log(err)
     }
   }
@@ -71,8 +71,8 @@ class Scrapper{
 
 let poliBot = '';
 
-class Twitter{
-  static async init(){
+class Twitter {
+  static async init() {
     poliBot = new Twit({
       consumer_key: process.env.CONSUMER_KEY,
 
@@ -84,7 +84,7 @@ class Twitter{
     });
   }
 
-  static runTwitter(tweetContent){
+  static runTwitter(tweetContent) {
     let postTweet = `${tweetContent}`;
     Twitter.init();
     poliBot.post(
@@ -101,18 +101,18 @@ class Twitter{
   }
 }
 
-async function init(){
-  try{
+async function init() {
+  try {
     await Scrapper.init();
     await Twitter.init();
 
     // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
 
-    if(Scrapper.results.data === currentDate()){
+    if (Scrapper.results.data === currentDate()) {
       cron.schedule('0 15 5 * * MON-FRI', () => {
-        try{
+        try {
           Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
-        }catch(err){
+        } catch (err) {
           console.log('é foda ' + err)
         }
       }, {
@@ -120,9 +120,9 @@ async function init(){
       });
 
       cron.schedule('0 30 9 * * MON-FRI', () => {
-        try{
+        try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
-        }catch(err){
+        } catch (err) {
           console.log('é foda ' + err)
         }
       }, {
@@ -130,9 +130,9 @@ async function init(){
       });
 
       cron.schedule('0 30 16 * * MON-FRI', () => {
-        try{
+        try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
-        }catch(err){
+        } catch (err) {
           console.log('é foda ' + err)
         }
       }, {
@@ -140,27 +140,27 @@ async function init(){
       });
     }
 
-      cron.schedule('0 30 17 * * MON-FRI', () => {
-        try{
-          Scrapper.getResults()
-        }catch(err){
-          console.log('é foda ' + err)
-        }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
+    cron.schedule('0 30 17 * * MON-FRI', () => {
+      try {
+        Scrapper.getResults()
+      } catch (err) {
+        console.log('é foda ' + err)
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
-      cron.schedule('* * * * * *', () => {
-        try{
-          Scrapper.herokuApp();
-        }catch(err){
-          console.log('é foda ' + err)
-        }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
+    cron.schedule('0 */10 * * * *', () => {
+      try {
+        Scrapper.herokuApp();
+      } catch (err) {
+        console.log('é foda ' + err)
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
 }
@@ -171,7 +171,7 @@ app.use(cors())
 
 app.use((req, res) => res.json(Scrapper.results));
 
-app.listen(process.env.PORT || 6000,() => {
-  init();
+app.listen(process.env.PORT || 6000, () => {
   console.log('App started at PORT ' + process.env.PORT || 6000)
+  init();
 })
