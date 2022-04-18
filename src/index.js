@@ -15,7 +15,7 @@ const currentDate = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', data: '', vezes: 0};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', vezes: 0};
 
   static async init() {
     await Scrapper.getResults();
@@ -56,8 +56,12 @@ class Scrapper {
 
   static async herokuApp() {
     try {
+      const data = new Date;
       const heroku = 'https://bot-ru-poli.herokuapp.com'
-      console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}`);
+      console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}, Atualmente ${data.getHours()}:${data.getMinutes()}:${data.getSeconds()}`);
+      if (Scrapper.results.data === currentDate()) {
+        Scrapper.results.today = 'HOJE TEM!';
+      }
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
       await page.goto(heroku, {waitUntil: 'load', timeout: 0});
@@ -108,37 +112,41 @@ async function init() {
 
     // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
 
-    if (Scrapper.results.data === currentDate()) {
-      cron.schedule('0 15 5 * * MON-FRI', () => {
+    cron.schedule('0 15 5 * * MON-FRI', () => {
+      if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
         } catch (err) {
           console.log('é foda ' + err)
         }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
-      cron.schedule('0 30 9 * * MON-FRI', () => {
+    cron.schedule('0 30 9 * * MON-FRI', () => {
+      if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
         } catch (err) {
           console.log('é foda ' + err)
         }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
-      cron.schedule('0 30 16 * * MON-FRI', () => {
+    cron.schedule('0 30 16 * * MON-FRI', () => {
+      if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
         } catch (err) {
           console.log('é foda ' + err)
         }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
-    }
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
     cron.schedule('0 30 17 * * MON-FRI', () => {
       try {
@@ -160,7 +168,8 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-  } catch (err) {
+  } catch
+    (err) {
     console.log(err);
   }
 }
