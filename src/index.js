@@ -59,9 +59,6 @@ class Scrapper {
       const data = new Date;
       const heroku = 'https://bot-ru-poli.herokuapp.com'
       console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}, Atualmente ${data.getHours()}:${data.getMinutes()}:${data.getSeconds()}`);
-      if (Scrapper.results.data === currentDate()) {
-        Scrapper.results.today = 'HOJE TEM!';
-      }
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
       await page.goto(heroku, {waitUntil: 'load', timeout: 0});
@@ -109,6 +106,12 @@ async function init() {
   try {
     await Scrapper.init();
     await Twitter.init();
+
+    if (Scrapper.results.data === currentDate()) {
+      Scrapper.results.today = 'HOJE TEM!';
+    }else{
+      Scrapper.results.today = 'HOJE NAO TEM!';
+    }
 
     // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
 
