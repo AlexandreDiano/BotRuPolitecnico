@@ -15,7 +15,7 @@ const currentDate = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', err: ''};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', err: ''};
 
   static async init() {
     await Scrapper.getResults();
@@ -45,7 +45,7 @@ class Scrapper {
       Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
-      Scrapper.results.today = currentDate();
+      Scrapper.results.todayDate = currentDate();
       await browser.close();
     } catch (err) {
       console.log(err)
