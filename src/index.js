@@ -11,8 +11,7 @@ const currentDate = () => {
   const date = new Date();
   const day = date.getDate();
   const month = String(date.getMonth() + 1);
-  const year = date.getFullYear();
-  return `${day}/${month.padStart(2, '0')}/${year}`;
+  return `${day}/${month.padStart(2, '0')}`;
 }
 
 class Scrapper {
@@ -47,7 +46,6 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
 
-      await Save.init();
       await browser.close();
     } catch (err) {
       console.log(err)
@@ -68,26 +66,6 @@ class Scrapper {
     } catch (err) {
       console.log(err)
     }
-  }
-}
-
-let dailyMenu;
-
-class Save {
-  static async init(){
-    dailyMenu = Scrapper.results
-    await this.complete();
-  }
-
-  static async complete(){
-    fs.writeFile("menu.json", dailyMenu, 'utf8', function (err) {
-      if (err) {
-        console.log("An error occured while writing JSON Object to File.");
-        return console.log(err);
-      }
-
-      console.log("JSON file has been saved.");
-    });
   }
 }
 
@@ -209,7 +187,6 @@ async function init() {
           Scrapper.herokuApp()
           try {
             Scrapper.getResults()
-            Save.init()
           } catch (err) {
             console.log('getResults ' + err)
           }
