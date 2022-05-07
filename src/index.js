@@ -11,7 +11,8 @@ const currentDate = () => {
   const date = new Date();
   const day = date.getDate();
   const month = String(date.getMonth() + 1);
-  return `${day}/${month.padStart(2, '0')}`;
+  const year = String(date.getFullYear());
+  return `${day}/${month.padStart(2, '0')}/${year}`;
 }
 
 class Scrapper {
