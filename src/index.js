@@ -1,4 +1,5 @@
-let Twit = require("twit");
+const Twit = require("twit");
+const fs = require('fs');
 const puppeteer = require("puppeteer");
 const cron = require('node-cron');
 const express = require('express');
@@ -15,7 +16,7 @@ const currentDate = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', vezes: 0};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', vezes: 0, err: ''};
 
   static async init() {
     await Scrapper.getResults();
@@ -25,10 +26,10 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
       const page = await browser.newPage();
       await page.goto(url,
-        {waitUntil: 'domcontentloaded', timeout: 0});
+          {waitUntil: 'domcontentloaded', timeout: 0});
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -46,19 +47,19 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
 
+      await Save.init();
       await browser.close();
     } catch (err) {
       console.log(err)
-      await Scrapper.init();
+      Scrapper.results.err = err;
+      await this.init();
     }
 
   }
 
   static async herokuApp() {
     try {
-      const data = new Date;
       const heroku = 'https://bot-ru-poli.herokuapp.com'
-      console.log(`Ainda estou vivo, ja rodei ${Scrapper.results.vezes++}, Atualmente ${data.getHours()}:${data.getMinutes()}:${data.getSeconds()}`);
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
       await page.goto(heroku, {waitUntil: 'load', timeout: 0});
@@ -67,6 +68,26 @@ class Scrapper {
     } catch (err) {
       console.log(err)
     }
+  }
+}
+
+let dailyMenu;
+
+class Save {
+  static async init(){
+    dailyMenu = Scrapper.results
+    await this.complete();
+  }
+
+  static async complete(){
+    fs.writeFile("menu.json", dailyMenu, 'utf8', function (err) {
+      if (err) {
+        console.log("An error occured while writing JSON Object to File.");
+        return console.log(err);
+      }
+
+      console.log("JSON file has been saved.");
+    });
   }
 }
 
@@ -89,15 +110,15 @@ class Twitter {
     let postTweet = `${tweetContent}`;
     Twitter.init();
     poliBot.post(
-      'statuses/update',
-      {status: postTweet},
-      function (err, data, response) {
-        if (err) {
-          console.log("ERRO: " + err);
-          return false;
+        'statuses/update',
+        {status: postTweet},
+        function (err, data, response) {
+          if (err) {
+            console.log("ERRO: " + err);
+            return false;
+          }
+          console.log("Tweet postado com sucesso!\n");
         }
-        console.log("Tweet postado com sucesso!\n");
-      }
     )
   }
 }
@@ -115,64 +136,95 @@ async function init() {
 
     // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
 
-    cron.schedule('0 15 5 * * MON-FRI', () => {
-      if (Scrapper.results.data === currentDate()) {
-        try {
-          Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
-        } catch (err) {
-          console.log('é foda ' + err)
-        }
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 30 9 * * MON-FRI', () => {
-      if (Scrapper.results.data === currentDate()) {
-        try {
-          Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
-        } catch (err) {
-          console.log('é foda ' + err)
-        }
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 30 16 * * MON-FRI', () => {
-      if (Scrapper.results.data === currentDate()) {
-        try {
-          Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
-        } catch (err) {
-          console.log('é foda ' + err)
-        }
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 30 17 * * MON-FRI', () => {
+    cron.schedule('0 10 5 * * MON-FRI', () => {
       try {
-        Scrapper.getResults()
+        Scrapper.herokuApp()
+        cron.schedule('0 15 5 * * MON-FRI', () => {
+          Scrapper.herokuApp()
+          if (Scrapper.results.data === currentDate()) {
+            try {
+              Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
+            } catch (err) {
+              console.log('Café ' + err)
+            }
+          }
+        }, {
+          timezone: 'America/Sao_Paulo'
+        });
       } catch (err) {
-        console.log('é foda ' + err)
+        console.log('5 Minutes early Café ' + err)
       }
     }, {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 */10 * * * *', () => {
+    cron.schedule('0 25 9 * * MON-FRI', () => {
       try {
-        Scrapper.herokuApp();
+        Scrapper.herokuApp()
+        cron.schedule('0 30 9 * * MON-FRI', () => {
+          Scrapper.herokuApp()
+          if (Scrapper.results.data === currentDate()) {
+            try {
+              Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
+            } catch (err) {
+              console.log('Almoço ' + err)
+            }
+          }
+        }, {
+          timezone: 'America/Sao_Paulo'
+        });
       } catch (err) {
-        console.log('é foda ' + err)
+        console.log('5 Minutes early Almoço ' + err)
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
+    cron.schedule('0 25 16 * * MON-FRI', () => {
+      try {
+        Scrapper.herokuApp()
+        cron.schedule('0 30 16 * * MON-FRI', () => {
+          Scrapper.herokuApp()
+          if (Scrapper.results.data === currentDate()) {
+            try {
+              Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
+            } catch (err) {
+              console.log('Janta ' + err)
+            }
+          }
+        }, {
+          timezone: 'America/Sao_Paulo'
+        });
+      } catch (err) {
+        console.log('5 Minutes early Janta ' + err)
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
+    cron.schedule('0 54 23 * * MON-FRI', () => {
+      try {
+        Scrapper.herokuApp()
+        cron.schedule('0 59 23 * * MON-FRI', () => {
+          Scrapper.herokuApp()
+          try {
+            Scrapper.getResults()
+            Save.init()
+          } catch (err) {
+            console.log('getResults ' + err)
+          }
+        }, {
+          timezone: 'America/Sao_Paulo'
+        });
+      } catch (err) {
+        console.log('5 Minutes early getResults ' + err)
       }
     }, {
       timezone: 'America/Sao_Paulo'
     });
 
   } catch
-    (err) {
+      (err) {
     console.log(err);
   }
 }
