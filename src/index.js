@@ -43,8 +43,11 @@ class Scrapper {
       Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
       Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
-      Scrapper.results.data = String(pageContent.data);
-      Scrapper.results.todayDate = String(currentDate());
+      Scrapper.results.data = pageContent.data;
+      Scrapper.results.todayDate = currentDate();
+
+      Scrapper.results.data = String(Scrapper.results.data)
+      Scrapper.results.todayDate = String(Scrapper.results.todayDate)
 
       if(Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta ){
         await this.init();
