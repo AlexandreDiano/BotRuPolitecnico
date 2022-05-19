@@ -56,6 +56,7 @@ class Scrapper {
       }
 
       await browser.close();
+      Scrapper.results.last = "Get Results"
     } catch (err) {
       console.log(err)
       Scrapper.results.err = err;
