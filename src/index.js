@@ -46,7 +46,7 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = Number(pageContent.data);
       Scrapper.results.todayDate = Number(currentDate());
-      if(Scrapper.results.cafe === ''){
+      if(Scrapper.results.cafe === "" || Scrapper.results.almoco === "" || Scrapper.results.janta === ""){
         await this.init();
       }
       await browser.close();
