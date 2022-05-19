@@ -26,7 +26,7 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({ headless: true });
+      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
       const page = await browser.newPage();
       await page.goto(url);
 
@@ -46,7 +46,6 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
       Scrapper.results.todayDate = currentDate();
-      // console.log(Scrapper.results)
       await browser.close();
     } catch (err) {
       console.log(err)
