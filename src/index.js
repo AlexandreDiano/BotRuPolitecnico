@@ -26,7 +26,7 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({ headless: true});
+      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
       const page = await browser.newPage();
       await page.goto(url);
 
