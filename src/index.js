@@ -47,7 +47,7 @@ class Scrapper {
       Scrapper.results.data = String(pageContent.data);
       Scrapper.results.todayDate = String(currentDate());
 
-      if(Scrapper.results.cafe === "" || Scrapper.results.almoco === "" || Scrapper.results.janta === ""){
+      if(Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta ){
         await this.init();
       }
       await browser.close();
