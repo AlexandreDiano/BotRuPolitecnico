@@ -106,7 +106,7 @@ async function init() {
     await Scrapper.init();
     await Twitter.init();
 
-    if (Scrapper.results.data === currentDate()) {
+    if (Scrapper.results.data == currentDate()) {
       Scrapper.results.today = 'HOJE TEM!';
     }else{
       Scrapper.results.today = 'HOJE NAO TEM!';
