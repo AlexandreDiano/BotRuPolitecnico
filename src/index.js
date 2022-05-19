@@ -10,8 +10,8 @@ const currentDate = () => {
   const date = new Date();
   const day = String(date.getDate());
   const month = String(date.getMonth() + 1);
-  const year = String(date.getFullYear());
-  return `${day}/${month.padStart(2, '0')}/${year}`;
+  // const year = String(date.getFullYear());
+  return `${day}/${month.padStart(2, '0')}}`;
 }
 
 class Scrapper {
@@ -36,7 +36,7 @@ class Scrapper {
           cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
           almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
           janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
-          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '').replace(/\s/g, ''),
+          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '').replace('/2022: ', '').replace(/\s/g, ''),
         }
       })
 
