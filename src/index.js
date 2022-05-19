@@ -28,7 +28,7 @@ class Scrapper {
       console.log('getData')
       const browser = await puppeteer.launch({ args: ['--no-sandbox']});
       const page = await browser.newPage();
-      await page.goto(url,{waitUntil: 'domcontentloaded'});
+      await page.goto(url,{ waitUntil: 'domcontentloaded', timeout: 0 });
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
