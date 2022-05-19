@@ -8,7 +8,7 @@ require("dotenv").config();
 
 const currentDate = () => {
   const date = new Date();
-  const day = date.getDate();
+  const day = String(date.getDate());
   const month = String(date.getMonth() + 1);
   const year = String(date.getFullYear());
   return `${day}/${month.padStart(2, '0')}/${year}`;
@@ -43,8 +43,8 @@ class Scrapper {
       Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
       Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
-      Scrapper.results.data = pageContent.data.toString();
-      Scrapper.results.todayDate = currentDate().toString();
+      Scrapper.results.data = pageContent.data;
+      Scrapper.results.todayDate = currentDate();
 
       if(Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta ){
         await this.init();
