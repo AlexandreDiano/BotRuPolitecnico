@@ -44,8 +44,10 @@ class Scrapper {
       Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
       Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
-      Scrapper.results.data = Number(pageContent.data);
-      Scrapper.results.todayDate = Number(currentDate());
+      Scrapper.results.data = pageContent.data;
+      Scrapper.results.todayDate = currentDate();
+      console.log(typeof Scrapper.results.data)
+      console.log(typeof Scrapper.results.todayDate)
       if(Scrapper.results.cafe === "" || Scrapper.results.almoco === "" || Scrapper.results.janta === ""){
         await this.init();
       }
