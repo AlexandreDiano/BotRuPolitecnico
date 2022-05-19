@@ -26,7 +26,7 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+      const browser = await puppeteer.launch({ headless: false });
       const page = await browser.newPage();
       await page.goto(url);
 
@@ -57,7 +57,6 @@ class Scrapper {
       Scrapper.results.err = err;
       await this.init();
     }
-
   }
 
   static async herokuApp() {
