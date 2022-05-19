@@ -37,15 +37,17 @@ class Scrapper {
           cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
           almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
           janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
-          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '')
+          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '').parseInt()
         }
       })
 
       Scrapper.results.cafe = pageContent.cafe.replace(/\s\s+/g, '\n');
       Scrapper.results.almoco = pageContent.almoco.replace(/\s\s+/g, '\n');
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
-      Scrapper.results.data = pageContent.data;
-      Scrapper.results.todayDate = currentDate();
+      Scrapper.results.data = Number(pageContent.data);
+      Scrapper.results.todayDate = Number(currentDate());
+      console.log(typeof Scrapper.results.data)
+      console.log(typeof Scrapper.results.todayDate)
       await browser.close();
     } catch (err) {
       console.log(err)
@@ -106,7 +108,7 @@ async function init() {
     await Scrapper.init();
     await Twitter.init();
 
-    if (Scrapper.results.data == currentDate()) {
+    if (Scrapper.results.data === currentDate()) {
       Scrapper.results.today = 'HOJE TEM!';
     }else{
       Scrapper.results.today = 'HOJE NAO TEM!';
