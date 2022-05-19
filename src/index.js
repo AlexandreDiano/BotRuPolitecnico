@@ -36,7 +36,7 @@ class Scrapper {
           cafe: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[1].innerHTML.replace(/\n|<.*?>/g, '\n'),
           almoco: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[3].innerHTML.replace(/\n|<.*?>/g, '\n'),
           janta: document.querySelector('#post div:nth-child(3) figure:nth-child(5) table tbody').children[5].innerHTML.replace(/\n|<.*?>/g, '\n'),
-          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '')
+          data: document.querySelector('#post div:nth-child(3) p:nth-of-type(2) strong strong').innerHTML.replace('eira: ', '').replace(/\s/g, ''),
         }
       })
 
