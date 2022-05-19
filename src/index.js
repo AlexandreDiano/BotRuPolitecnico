@@ -46,6 +46,12 @@ class Scrapper {
       Scrapper.results.data = pageContent.data;
       Scrapper.results.todayDate = currentDate();
 
+      if (Scrapper.results.data === currentDate()) {
+        Scrapper.results.today = 'HOJE TEM!';
+      }else{
+        Scrapper.results.today = 'HOJE NAO TEM!';
+      }
+
       if(Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta ){
         await this.init();
       }
@@ -107,14 +113,6 @@ async function init() {
   try {
     await Scrapper.init();
     await Twitter.init();
-
-    if (Scrapper.results.data === currentDate()) {
-      Scrapper.results.today = 'HOJE TEM!';
-    }else{
-      Scrapper.results.today = 'HOJE NAO TEM!';
-    }
-
-    // Twitter.runTwitter(`TESTE\n---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
 
     cron.schedule('0 10 5 * * MON-FRI', () => {
       try {
