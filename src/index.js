@@ -26,10 +26,9 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+      const browser = await puppeteer.launch({ headless: true });
       const page = await browser.newPage();
-      await page.goto(url,
-          {waitUntil: 'domcontentloaded', timeout: 0});
+      await page.goto(url);
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -47,6 +46,7 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
       Scrapper.results.todayDate = currentDate();
+      // console.log(Scrapper.results)
       await browser.close();
     } catch (err) {
       console.log(err)
@@ -58,7 +58,7 @@ class Scrapper {
 
   static async herokuApp() {
     try {
-      const heroku = 'https://bot-ru-poli.herokuapp.com'
+      const heroku = 'https://bot-ru-politecnico.herokuapp.com'
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
       await page.goto(heroku, {waitUntil: 'load', timeout: 0});
