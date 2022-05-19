@@ -161,20 +161,22 @@ async function init() {
     cron.schedule('0 25 16 * * MON-FRI', () => {
       try {
         Scrapper.herokuApp()
-        cron.schedule('0 30 16 * * MON-FRI', () => {
-          Scrapper.herokuApp()
-          if (Scrapper.results.data === currentDate()) {
-            try {
-              Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
-            } catch (err) {
-              console.log('Janta ' + err)
-            }
-          }
-        }, {
-          timezone: 'America/Sao_Paulo'
-        });
+
       } catch (err) {
         console.log('5 Minutes early Janta ' + err)
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
+    cron.schedule('0 35 16 * * MON-FRI', () => {
+      Scrapper.herokuApp()
+      if (Scrapper.results.data === currentDate()) {
+        try {
+          Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
+        } catch (err) {
+          console.log('Janta ' + err)
+        }
       }
     }, {
       timezone: 'America/Sao_Paulo'
