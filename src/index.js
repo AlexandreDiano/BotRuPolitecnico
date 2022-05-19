@@ -26,9 +26,9 @@ class Scrapper {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
       console.log('getData')
-      const browser = await puppeteer.launch({ args: ['--no-sandbox']});
+      const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
-      await page.goto(url,{ waitUntil: 'domcontentloaded', timeout: 0 });
+      await page.goto(url,{ waitUntil: 'networkidle2' });
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
