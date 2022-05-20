@@ -26,7 +26,7 @@ class Scrapper {
 
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
-      await page.goto(url, {waitUntil: 'networkidle2'});
+      await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -54,12 +54,10 @@ class Scrapper {
       }
       if (Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta) {
         await this.init();
-
       }
 
-      console.log('getData')
-
       await browser.close();
+      console.log('getData')
     } catch (err) {
       console.log(err)
       Scrapper.results.err = err;
@@ -132,8 +130,6 @@ async function init() {
     });
 
     cron.schedule('0 20 10 * * MON-FRI', () => {
-      Scrapper.herokuApp()
-      console.log('almoço')
       if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
@@ -147,7 +143,6 @@ async function init() {
     });
 
     cron.schedule('0 30 16 * * MON-FRI', () => {
-      Scrapper.herokuApp()
       if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
