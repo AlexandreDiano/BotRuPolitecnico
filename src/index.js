@@ -26,7 +26,7 @@ class Scrapper {
 
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
-      await page.goto(url, {waitUntil: 'domcontentloaded', timeout: 0});
+      await page.goto(url, {waitUntil: 'networkidle2'});
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -54,44 +54,8 @@ class Scrapper {
       }
       if (Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta) {
         await this.init();
+
       }
-
-      cron.schedule('0 15 5 * * MON-FRI', () => {
-        Scrapper.herokuApp()
-        if (Scrapper.results.data === currentDate()) {
-          try {
-            Post.cafe()
-          } catch (err) {
-            console.log('Café ' + err)
-          }
-        }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
-
-      cron.schedule('0 50 10 * * MON-FRI', () => {
-        if (Scrapper.results.data === currentDate()) {
-          try {
-            Post.almoco()
-          } catch (err) {
-            console.log('Almoço ' + err)
-          }
-        }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
-
-      cron.schedule('0 30 16 * * MON-FRI', () => {
-        if (Scrapper.results.data === currentDate()) {
-          try {
-            Post.jantar()
-          } catch (err) {
-            console.log('Janta ' + err)
-          }
-        }
-      }, {
-        timezone: 'America/Sao_Paulo'
-      });
 
       console.log('getData')
     } catch (err) {
@@ -116,25 +80,6 @@ class Scrapper {
 }
 
 let poliBot = '';
-
-class Post {
-  static async cafe() {
-    Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
-    Scrapper.results.last = "Café da Manhã"
-  }
-
-  static async almoco() {
-    Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
-    Scrapper.results.last = "Almoço"
-  }
-
-  static async jantar() {
-    Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
-    Scrapper.results.last = "Janta"
-    Scrapper.getResults()
-    Scrapper.results.last = "Get Results"
-  }
-}
 
 class Twitter {
   static async init() {
@@ -168,9 +113,53 @@ class Twitter {
 async function init() {
   try {
     await Scrapper.init();
+    console.log('ja rodou o scrapper init')
     await Twitter.init();
+    console.log('ja rodou o twitter init')
 
+    cron.schedule('0 15 5 * * MON-FRI', () => {
+      console.log('Café')
+      if (Scrapper.results.data === currentDate()) {
+        try {
+          Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
+          Scrapper.results.last = "Café da Manhã"
+        } catch (err) {
+          console.log('Café ' + err)
+        }
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
 
+    cron.schedule('0 20 10 * * MON-FRI', () => {
+      console.log('almoço')
+      if (Scrapper.results.data === currentDate()) {
+        try {
+          Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
+          Scrapper.results.last = "Almoço"
+        } catch (err) {
+          console.log('Almoço ' + err)
+        }
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
+    cron.schedule('0 30 16 * * MON-FRI', () => {
+      console.log('Jantar')
+      if (Scrapper.results.data === currentDate()) {
+        try {
+          Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
+          Scrapper.results.last = "Janta"
+          Scrapper.getResults()
+          Scrapper.results.last = "Get Results"
+        } catch (err) {
+          console.log('Janta ' + err)
+        }
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
   } catch
     (err) {
     console.log(err);
