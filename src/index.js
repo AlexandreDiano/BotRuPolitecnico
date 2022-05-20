@@ -122,7 +122,11 @@ async function init() {
     Scrapper.results.last = "Twitter"
     console.log('ja rodou o ' + Scrapper.results.last)
 
-    setTimeout(console.log('deu boa'), 120000);
+    const myTimeout = setTimeout(funcao, 5000);
+
+    function funcao(){
+      console.log('deu boa??')
+    }
 
     cron.schedule('0 15 5 * * MON-FRI', () => {
       console.log('Café')
