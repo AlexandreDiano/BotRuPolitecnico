@@ -12,6 +12,13 @@ const currentDate = () => {
   const month = String(date.getMonth() + 1);
   return `${day}/${month.padStart(2, '0')}`;
 }
+const currentDateYear = () => {
+  const date = new Date();
+  const day = String(date.getDate());
+  const month = String(date.getMonth() + 1);
+  const year = String(date.getFullYear());
+  return `${day}/${month.padStart(2, '0')}/${year}`;
+}
 
 class Scrapper {
   static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', err: ''};
@@ -28,7 +35,6 @@ class Scrapper {
     await page.goto(url, {waitUntil: 'domcontentloaded'});
 
     try {
-
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
       const pageContent = await page.evaluate(() => {
@@ -111,16 +117,16 @@ async function init() {
   try {
     await Scrapper.init();
     Scrapper.results.last = "Scrapper"
-    console.log('ja rodou o scrapper init')
+    console.log('ja rodou o ' + Scrapper.results.last)
     await Twitter.init();
     Scrapper.results.last = "Twitter"
-    console.log('ja rodou o twitter init')
+    console.log('ja rodou o ' + Scrapper.results.last)
 
     cron.schedule('0 15 5 * * MON-FRI', () => {
       console.log('Café')
       if (Scrapper.results.data === currentDate()) {
         try {
-          Twitter.runTwitter(`---------- ${currentDate()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
+          Twitter.runTwitter(`---------- ${currentDateYear()} ----------\n------- CAFÉ DA MANHÃ -------\n${Scrapper.results.cafe}`)
           Scrapper.results.last = "Café da Manhã"
         } catch (err) {
           console.log('Café ' + err)
@@ -130,11 +136,11 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 20 10 * * MON-FRI', () => {
+    cron.schedule('0 35 11 * * MON-FRI', () => {
       console.log('almoço')
       if (Scrapper.results.data === currentDate()) {
         try {
-          Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
+          Twitter.runTwitter(`------- ${currentDateYear()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
           Scrapper.results.last = "Almoço"
         } catch (err) {
           console.log('Almoço ' + err)
@@ -148,7 +154,7 @@ async function init() {
       console.log('Jantar')
       if (Scrapper.results.data === currentDate()) {
         try {
-          Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
+          Twitter.runTwitter(`------- ${currentDateYear()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
           Scrapper.results.last = "Janta"
           Scrapper.getResults()
           Scrapper.results.last = "Get Results"
