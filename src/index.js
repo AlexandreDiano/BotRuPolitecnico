@@ -26,7 +26,7 @@ class Scrapper {
 
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
-      await page.goto(url, {waitUntil: 'networkidle2'});
+      await page.goto(url, {waitUntil: 'domcontentloaded'});
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -44,7 +44,6 @@ class Scrapper {
       Scrapper.results.janta = pageContent.janta.replace(/\s\s+/g, '\n');
       Scrapper.results.data = pageContent.data;
       Scrapper.results.todayDate = currentDate();
-      Scrapper.results.last = "Scrapper"
 
       if (Scrapper.results.data === currentDate()) {
         Scrapper.results.today = 'HOJE TEM!';
@@ -58,6 +57,7 @@ class Scrapper {
       }
 
       console.log('getData')
+      await browser.close();
     } catch (err) {
       console.log(err)
       Scrapper.results.err = err;
@@ -113,8 +113,10 @@ class Twitter {
 async function init() {
   try {
     await Scrapper.init();
+    Scrapper.results.last = "Scrapper"
     console.log('ja rodou o scrapper init')
     await Twitter.init();
+    Scrapper.results.last = "Twitter"
     console.log('ja rodou o twitter init')
 
     cron.schedule('0 15 5 * * MON-FRI', () => {
