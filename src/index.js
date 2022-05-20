@@ -122,7 +122,7 @@ async function init() {
     Scrapper.results.last = "Twitter"
     console.log('ja rodou o ' + Scrapper.results.last)
 
-    const myTimeout = setTimeout(funcao, 5000);
+    const myTimeout = setTimeout(funcao, 60000);
 
     function funcao(){
       console.log('deu boa??')
