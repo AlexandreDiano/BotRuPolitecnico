@@ -122,6 +122,8 @@ async function init() {
     Scrapper.results.last = "Twitter"
     console.log('ja rodou o ' + Scrapper.results.last)
 
+    setTimeout(console.log('deu boa'), 3600000);
+
     cron.schedule('0 15 5 * * MON-FRI', () => {
       console.log('Café')
       if (Scrapper.results.data === currentDate()) {
@@ -136,7 +138,7 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 47 11 * * MON-FRI', () => {
+    cron.schedule('0 30 9 * * MON-FRI', () => {
       console.log('almoço')
       if (Scrapper.results.data === currentDate()) {
         try {
