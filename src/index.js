@@ -21,7 +21,7 @@ const currentDateYear = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', awake: '', err: ''};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', awake: 0, err: ''};
 
   static async init() {
     await Scrapper.getResults();
@@ -120,6 +120,20 @@ async function init() {
     await Twitter.init();
     Scrapper.results.last = "Twitter"
 
+    cron.schedule('0 0 4 * * MON-FRI', () => {
+      console.log('Get Results')
+      if (Scrapper.results.data === currentDate()) {
+        try {
+          Scrapper.getResults()
+          Scrapper.results.last = "Get Results"
+        } catch (err) {
+          console.log('Get Results ' + err)
+        }
+      }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
     cron.schedule('0 15 5 * * MON-FRI', () => {
       console.log('Café')
       if (Scrapper.results.data === currentDate()) {
@@ -154,8 +168,6 @@ async function init() {
         try {
           Twitter.runTwitter(`------- ${currentDateYear()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
           Scrapper.results.last = "Janta"
-          Scrapper.getResults()
-          Scrapper.results.last = "Get Results"
         } catch (err) {
           console.log('Janta ' + err)
         }
@@ -171,8 +183,7 @@ async function init() {
     }, {
       timezone: 'America/Sao_Paulo'
     });
-  } catch
-    (err) {
+  } catch (err) {
     console.log(err);
   }
 }
