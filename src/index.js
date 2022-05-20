@@ -21,12 +21,13 @@ class Scrapper {
   }
 
   static async getResults() {
-    try {
-      const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
+    const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
 
-      const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-      const page = await browser.newPage();
-      await page.goto(url, {waitUntil: 'domcontentloaded'});
+    const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+    const page = await browser.newPage();
+    await page.goto(url, {waitUntil: 'domcontentloaded'});
+
+    try {
 
       await page.waitForSelector('#post div:nth-child(3) figure:nth-child(5) table tbody');
 
@@ -49,19 +50,15 @@ class Scrapper {
         Scrapper.results.today = 'HOJE TEM!';
       } else {
         Scrapper.results.today = 'HOJE NAO TEM!';
-
-      }
-      if (Scrapper.results.cafe || Scrapper.results.almoco || Scrapper.results.janta) {
-        await this.init();
-
       }
 
       console.log('getData')
-      await browser.close();
     } catch (err) {
       console.log(err)
       Scrapper.results.err = err;
       await this.init();
+    }finally{
+      await browser.close();
     }
   }
 
