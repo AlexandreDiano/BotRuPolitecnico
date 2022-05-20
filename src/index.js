@@ -182,6 +182,8 @@ async function init() {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n---------- JANTAR ----------\n${Scrapper.results.janta}`)
           Scrapper.results.last = "Janta"
+          Scrapper.getResults()
+          Scrapper.results.last = "Get Results"
         } catch (err) {
           console.log('Janta ' + err)
         }
@@ -189,30 +191,6 @@ async function init() {
     }, {
       timezone: 'America/Sao_Paulo'
     });
-
-    cron.schedule('0 54 23 * * MON-FRI', () => {
-      try {
-        Scrapper.herokuApp()
-        Scrapper.results.last = "5 min to Get Results"
-      } catch (err) {
-        console.log('5 Minutes early getResults ' + err)
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 59 23 * * MON-FRI', () => {
-      Scrapper.herokuApp()
-      Scrapper.results.last = "Get Results"
-      try {
-        Scrapper.getResults()
-      } catch (err) {
-        console.log('getResults ' + err)
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
   } catch
     (err) {
     console.log(err);
