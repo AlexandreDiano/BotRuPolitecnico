@@ -136,7 +136,7 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 40 11 * * MON-FRI', () => {
+    cron.schedule('0 47 11 * * MON-FRI', () => {
       console.log('almoço')
       if (Scrapper.results.data === currentDate()) {
         try {
