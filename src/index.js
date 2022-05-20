@@ -23,7 +23,7 @@ class Scrapper {
   static async getResults() {
     try {
       const url = 'https://pra.ufpr.br/ru/ru-centro-politecnico/'
-      console.log('getData')
+
       const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
       const page = await browser.newPage();
       await page.goto(url, {waitUntil: 'networkidle2'});
@@ -56,6 +56,9 @@ class Scrapper {
         await this.init();
 
       }
+
+      console.log('getData')
+
       await browser.close();
     } catch (err) {
       console.log(err)
@@ -94,11 +97,10 @@ class Twitter {
   }
 
   static runTwitter(tweetContent) {
-    let postTweet = `${tweetContent}`;
     Twitter.init();
     poliBot.post(
       'statuses/update',
-      {status: postTweet},
+      {status: tweetContent},
       function (err, data, response) {
         if (err) {
           console.log("ERRO: " + err);
@@ -115,17 +117,6 @@ async function init() {
     await Scrapper.init();
     await Twitter.init();
 
-    cron.schedule('0 10 5 * * MON-FRI', () => {
-      try {
-        Scrapper.herokuApp();
-        Scrapper.results.last = "5 min to Post Café"
-      } catch (err) {
-        console.log('5 Minutes early Café ' + err)
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
     cron.schedule('0 15 5 * * MON-FRI', () => {
       Scrapper.herokuApp()
       if (Scrapper.results.data === currentDate()) {
@@ -140,19 +131,9 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 25 9 * * MON-FRI', () => {
-      try {
-        Scrapper.herokuApp();
-        Scrapper.results.last = "5 min to Post Almoço"
-      } catch (err) {
-        console.log('5 Minutes early Almoço ' + err)
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 30 9 * * MON-FRI', () => {
+    cron.schedule('0 20 10 * * MON-FRI', () => {
       Scrapper.herokuApp()
+      console.log('almoço')
       if (Scrapper.results.data === currentDate()) {
         try {
           Twitter.runTwitter(`------- ${currentDate()} -------\n--------- ALMOÇO ---------\n${Scrapper.results.almoco}`)
@@ -160,17 +141,6 @@ async function init() {
         } catch (err) {
           console.log('Almoço ' + err)
         }
-      }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 25 16 * * MON-FRI', () => {
-      try {
-        Scrapper.herokuApp()
-        Scrapper.results.last = "5 min to Post Janta"
-      } catch (err) {
-        console.log('5 Minutes early Janta ' + err)
       }
     }, {
       timezone: 'America/Sao_Paulo'
