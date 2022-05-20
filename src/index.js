@@ -21,7 +21,7 @@ const currentDateYear = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', err: ''};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', awake: '', err: ''};
 
   static async init() {
     await Scrapper.getResults();
@@ -117,16 +117,8 @@ async function init() {
   try {
     await Scrapper.init();
     Scrapper.results.last = "Scrapper"
-    console.log('ja rodou o ' + Scrapper.results.last)
     await Twitter.init();
     Scrapper.results.last = "Twitter"
-    console.log('ja rodou o ' + Scrapper.results.last)
-
-    const myTimeout = setTimeout(funcao, 3600000);
-
-    function funcao(){
-      Scrapper.results.last = "timeout"
-    }
 
     cron.schedule('0 15 5 * * MON-FRI', () => {
       console.log('Café')
@@ -168,6 +160,14 @@ async function init() {
           console.log('Janta ' + err)
         }
       }
+    }, {
+      timezone: 'America/Sao_Paulo'
+    });
+
+    cron.schedule('0 */30 * * * MON-FRI', () => {
+      console.log('To Acordado.')
+      Scrapper.results.awake(Scrapper.results.awake+1)
+      Scrapper.herokuApp()
     }, {
       timezone: 'America/Sao_Paulo'
     });
