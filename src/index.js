@@ -120,7 +120,7 @@ async function init() {
     await Twitter.init();
     Scrapper.results.last = "Twitter"
 
-    cron.schedule('0 0 4 * * MON-FRI', () => {
+    cron.schedule('0 0 5 * * MON-FRI', () => {
       console.log('Get Results')
       if (Scrapper.results.data === currentDate()) {
         try {
