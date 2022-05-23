@@ -176,7 +176,7 @@ async function init() {
       timezone: 'America/Sao_Paulo'
     });
 
-    cron.schedule('0 */30 * * * MON-FRI', () => {
+    cron.schedule('0 */20 * * * *', () => {
       console.log('To Acordado.')
       Scrapper.results.awake(Scrapper.results.awake+1)
       Scrapper.herokuApp()
