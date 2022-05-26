@@ -193,7 +193,7 @@ app.use(cors())
 
 app.use((req, res) => res.json(Scrapper.results));
 
-app.get("/", (req, res) => {
+app.get("/botfoda", (req, res) => {
   res.status(200).send("Café: " + results.cafe);
   res.status(200).send("Almoço: " + results.almoco);
   res.status(200).send("Janta: " + results.janta);
