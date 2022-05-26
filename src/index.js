@@ -193,6 +193,17 @@ app.use(cors())
 
 app.use((req, res) => res.json(Scrapper.results));
 
+app.get("/", (req, res) => {
+  res.status(200).send("Café: " + results.cafe);
+  res.status(200).send("Almoço: " + results.almoco);
+  res.status(200).send("Janta: " + results.janta);
+  res.status(200).send("Today: " + results.today);
+  res.status(200).send("Today Date: " + results.todayDate);
+  res.status(200).send("Awake: " + results.awake);
+  res.status(200).send("Erro: " + results.err);
+  res.status(200).send(`<button onClick={init}>Reload</button>`);
+});
+
 app.listen(process.env.PORT || 6000, () => {
   console.log('App started at PORT ' + process.env.PORT || 6000)
   init();
