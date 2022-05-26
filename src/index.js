@@ -191,7 +191,7 @@ const app = express();
 
 app.use(cors())
 
-app.use((req, res) => res.json(Scrapper.results));
+// app.use((req, res) => res.json(Scrapper.results));
 
 app.get("/botfoda", (req, res) => {
   res.status(200).send("Café: " + results.cafe);
