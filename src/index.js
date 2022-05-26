@@ -201,7 +201,7 @@ app.get("/botfoda", (req, res) => {
   res.status(200).send("Today Date: " + results.todayDate);
   res.status(200).send("Awake: " + results.awake);
   res.status(200).send("Erro: " + results.err);
-  res.status(200).send(`<button onClick={init}>Reload</button>`);
+  // res.status(200).send(`<button onClick={init}>Reload</button>`);
 });
 
 app.listen(process.env.PORT || 6000, () => {
