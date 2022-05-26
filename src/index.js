@@ -194,13 +194,13 @@ app.use(cors())
 // app.use((req, res) => res.json(Scrapper.results));
 
 app.get("/botfoda", (req, res) => {
-  res.status(200).send("Café: " + results.cafe);
-  res.status(200).send("Almoço: " + results.almoco);
-  res.status(200).send("Janta: " + results.janta);
-  res.status(200).send("Today: " + results.today);
-  res.status(200).send("Today Date: " + results.todayDate);
-  res.status(200).send("Awake: " + results.awake);
-  res.status(200).send("Erro: " + results.err);
+  res.status(200).send("Café: ");
+  // res.status(200).send("Almoço: " + results.almoco);
+  // res.status(200).send("Janta: " + results.janta);
+  // res.status(200).send("Today: " + results.today);
+  // res.status(200).send("Today Date: " + results.todayDate);
+  // res.status(200).send("Awake: " + results.awake);
+  // res.status(200).send("Erro: " + results.err);
   // res.status(200).send(`<button onClick={init}>Reload</button>`);
 });
 
