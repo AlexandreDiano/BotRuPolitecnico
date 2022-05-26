@@ -187,21 +187,12 @@ async function init() {
   }
 }
 
-const handle = () => {
-  Scrapper.results.last = 'botão' ;
-}
-
 const app = express();
 
 app.use(cors())
 
-app.get("/",(req, res) => {
-  res.status(200).send(Scrapper.results.map(value => (<p>{value}</p>)));
-})
+app.use((req, res) => res.json(Scrapper.results));
 
-app.get("/botfoda", (req, res) => {
-  res.status(200).send(`<button onClick={handle}>Reload</button>`);
-});
 
 app.listen(process.env.PORT || 6000, () => {
   console.log('App started at PORT ' + process.env.PORT || 6000)
