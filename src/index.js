@@ -192,10 +192,11 @@ const app = express();
 app.use(cors())
 
 app.get("/",(req, res) => {
-  app.use((req, res) => res.json(Scrapper.results));
+  res.json(Scrapper.results);
 })
 
 app.get("/botfoda", (req, res) => {
+  res.json(Scrapper.results);
   res.status(200).send(`<button onClick={init}>Reload</button>`);
 });
 
