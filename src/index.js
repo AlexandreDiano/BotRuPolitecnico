@@ -196,7 +196,7 @@ const app = express();
 app.use(cors())
 
 app.get("/",(req, res) => {
-  res.json(Scrapper.results);
+  res.status(200).send(Scrapper.results.map(value => (<p>{value}</p>)));
 })
 
 app.get("/botfoda", (req, res) => {
