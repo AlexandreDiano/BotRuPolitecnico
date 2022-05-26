@@ -191,16 +191,11 @@ const app = express();
 
 app.use(cors())
 
-// app.use((req, res) => res.json(Scrapper.results));
+app.get("/",(req, res) => {
+  app.use((req, res) => res.json(Scrapper.results));
+})
 
 app.get("/botfoda", (req, res) => {
-  res.status(200).send("Café: " + Scrapper.results.cafe);
-  res.status(200).send("Almoço: " + Scrapper.results.almoco);
-  res.status(200).send("Janta: " + Scrapper.results.janta);
-  res.status(200).send("Today: " + Scrapper.results.today);
-  res.status(200).send("Today Date: " + Scrapper.results.todayDate);
-  res.status(200).send("Awake: " + Scrapper.results.awake);
-  res.status(200).send("Erro: " + Scrapper.results.err);
   res.status(200).send(`<button onClick={init}>Reload</button>`);
 });
 
