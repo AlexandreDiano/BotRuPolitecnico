@@ -57,14 +57,14 @@ class Scrapper {
       } else {
         Scrapper.results.today = 'HOJE NAO TEM!';
       }
-
-      console.log('getData')
     } catch (err) {
       console.log(err)
       Scrapper.results.err = err;
       await this.init();
     }finally{
       await browser.close();
+
+      console.log('getData')
     }
   }
 
