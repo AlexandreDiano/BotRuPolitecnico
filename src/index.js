@@ -21,7 +21,7 @@ const currentDateYear = () => {
 }
 
 class Scrapper {
-  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', awake: 0, err: ''};
+  static results = {cafe: '', almoco: '', janta: '', today: '', data: '', todayDate: '', last: '', err: ''};
 
   static async init() {
     await Scrapper.getResults();
@@ -67,18 +67,18 @@ class Scrapper {
     }
   }
 
-  static async herokuApp() {
-    try {
-      const heroku = 'https://bot-ru-politecnico.herokuapp.com'
-      const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
-      const page = await browser.newPage();
-      await page.goto(heroku, {waitUntil: 'load', timeout: 0});
-
-      await browser.close();
-    } catch (err) {
-      console.log(err)
-    }
-  }
+  // static async herokuApp() {
+  //   try {
+  //     const heroku = 'https://bot-ru-politecnico.herokuapp.com'
+  //     const browser = await puppeteer.launch({headless: true, args: ['--no-sandbox']});
+  //     const page = await browser.newPage();
+  //     await page.goto(heroku, {waitUntil: 'load', timeout: 0});
+  //
+  //     await browser.close();
+  //   } catch (err) {
+  //     console.log(err)
+  //   }
+  // }
 }
 
 let poliBot = '';
@@ -171,14 +171,6 @@ async function init() {
           console.log('Janta ' + err)
         }
       }
-    }, {
-      timezone: 'America/Sao_Paulo'
-    });
-
-    cron.schedule('0 */10 * * * *', () => {
-      console.log('To Acordado.')
-      Scrapper.results.awake(Scrapper.results.awake+1)
-      Scrapper.herokuApp()
     }, {
       timezone: 'America/Sao_Paulo'
     });
